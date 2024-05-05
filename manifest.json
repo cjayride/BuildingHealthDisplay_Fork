@@ -1,0 +1,9 @@
+{
+    "name": "BuildingHealthDisplay",
+    "version_number": "0.7.0",
+    "website_url": "https://github.com/cjayride/BuildingHealthDisplay_Fork",
+    "description": "Fork of aedenthorn/BuildingHealthDisplay for v0.217.46+ Building health bar. Also optionally lets you show integrity and use custom integrity colours.",
+    "dependencies": [
+        "denikson-BepInExPack_Valheim-5.4.2202"
+    ]
+}

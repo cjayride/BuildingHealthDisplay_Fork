@@ -1,0 +1,9 @@
+D:\valheim-mods\MistlandsMods\BuildingHealthDisplay\bin\Release\net480\BuildingHealthDisplay.dll
+D:\valheim-mods\MistlandsMods\BuildingHealthDisplay\bin\Release\net480\BuildingHealthDisplay.pdb
+D:\valheim-mods\MistlandsMods\BuildingHealthDisplay\obj\Release\net480\BuildingHealthDisplay.csproj.AssemblyReference.cache
+D:\valheim-mods\MistlandsMods\BuildingHealthDisplay\obj\Release\net480\BuildingHealthDisplay.GeneratedMSBuildEditorConfig.editorconfig
+D:\valheim-mods\MistlandsMods\BuildingHealthDisplay\obj\Release\net480\BuildingHealthDisplay.AssemblyInfoInputs.cache
+D:\valheim-mods\MistlandsMods\BuildingHealthDisplay\obj\Release\net480\BuildingHealthDisplay.AssemblyInfo.cs
+D:\valheim-mods\MistlandsMods\BuildingHealthDisplay\obj\Release\net480\BuildingHealthDisplay.csproj.CoreCompileInputs.cache
+D:\valheim-mods\MistlandsMods\BuildingHealthDisplay\obj\Release\net480\BuildingHealthDisplay.dll
+D:\valheim-mods\MistlandsMods\BuildingHealthDisplay\obj\Release\net480\BuildingHealthDisplay.pdb
