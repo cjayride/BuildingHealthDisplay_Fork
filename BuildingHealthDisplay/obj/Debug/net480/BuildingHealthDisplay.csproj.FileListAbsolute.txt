@@ -22,3 +22,4 @@ C:\Users\Administrator\Documents\Valheim-Modding\BuildingHealthDisplay-main\Buil
 C:\Users\Administrator\Documents\Valheim-Modding\BuildingHealthDisplay-main\BuildingHealthDisplay\obj\Debug\net480\BuildingHealthDisplay.csproj.CoreCompileInputs.cache
 C:\Users\Administrator\Documents\Valheim-Modding\BuildingHealthDisplay-main\BuildingHealthDisplay\obj\Debug\net480\BuildingHealthDisplay.dll
 C:\Users\Administrator\Documents\Valheim-Modding\BuildingHealthDisplay-main\BuildingHealthDisplay\obj\Debug\net480\BuildingHealthDisplay.pdb
+C:\Users\Administrator\Documents\Valheim-Modding\BuildingHealthDisplay-main\BuildingHealthDisplay\obj\Debug\net480\BuildingHealthDisplay.sourcelink.json

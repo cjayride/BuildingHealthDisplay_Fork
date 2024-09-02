@@ -9,7 +9,7 @@ using UnityEngine.UI;
 
 namespace BuildingHealthDisplay
 {
-    [BepInPlugin("cjayride.BuildingHealthDisplay", "Building Health Display", "0.7.0")]
+    [BepInPlugin("cjayride.BuildingHealthDisplay", "Building Health Display", "0.7.1")]
     public class BepInExPlugin : BaseUnityPlugin
     {
         private static readonly bool isDebug = true;
@@ -142,7 +142,7 @@ namespace BuildingHealthDisplay
             }
         }
 
-        [HarmonyPatch(typeof(WearNTear), "Highlight")]
+        /*[HarmonyPatch(typeof(WearNTear), "Highlight")]
         static class WearNTear_Highlight_Patch
         {
             static void Postfix(WearNTear __instance)
@@ -169,6 +169,6 @@ namespace BuildingHealthDisplay
                     }
                 }
             }
-        }
+        }*/
     }
 }
