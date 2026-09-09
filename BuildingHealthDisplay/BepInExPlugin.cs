@@ -1,18 +1,18 @@
 ﻿using BepInEx;
 using BepInEx.Configuration;
 using HarmonyLib;
-using System.Collections.Generic;
-using System.IO;
+using System.Reflection;
 using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
+
+[assembly: AssemblyVersion("0.8.0.0")]
+[assembly: AssemblyFileVersion("0.8.0.0")]
 
 namespace BuildingHealthDisplay
 {
-    [BepInPlugin("cjayride.BuildingHealthDisplay", "Building Health Display", "0.7.1")]
+    [BepInPlugin("cjayride.BuildingHealthDisplay", "Building Health Display", "0.8.0")]
     public class BepInExPlugin : BaseUnityPlugin
     {
-        private static readonly bool isDebug = true;
         private static BepInExPlugin context;
         private Harmony harmony;
 
@@ -40,9 +40,6 @@ namespace BuildingHealthDisplay
         public static ConfigEntry<Color> lowIntegrityColor;
         public static ConfigEntry<Color> midIntegrityColor;
         public static ConfigEntry<Color> highIntegrityColor;
-
-
-        public static int itemSize = 70;
 
         private void Awake()
         {
@@ -76,7 +73,8 @@ namespace BuildingHealthDisplay
 
         private void OnDestroy()
         {
-            harmony?.UnpatchAll();
+            if (harmony != null)
+                harmony.UnpatchSelf();
         }
 
         [HarmonyPatch(typeof(Hud), "UpdateCrosshair")]
@@ -84,57 +82,77 @@ namespace BuildingHealthDisplay
         {
             static void Postfix(Hud __instance, Player player)
             {
-                if (!modEnabled.Value)
+                if (!modEnabled.Value || player == null || __instance.m_pieceHealthBar == null || __instance.m_pieceHealthRoot == null)
                     return;
+
                 Piece hoveringPiece = player.GetHoveringPiece();
-                if (hoveringPiece)
+                if (!hoveringPiece)
+                    return;
+
+                WearNTear wnt = hoveringPiece.GetComponent<WearNTear>();
+                ZNetView znv = hoveringPiece.GetComponent<ZNetView>();
+                if (!wnt || znv == null || !znv.IsValid())
+                    return;
+
+                Transform barParent = __instance.m_pieceHealthBar.transform.parent;
+                Transform bkg = barParent.Find("bkg");
+                if (bkg)
+                    bkg.gameObject.SetActive(showHealthBar.Value);
+                Transform darken = barParent.Find("darken");
+                if (darken)
+                    darken.gameObject.SetActive(showHealthBar.Value);
+                __instance.m_pieceHealthBar.gameObject.SetActive(showHealthBar.Value);
+
+                float healthPercent = wnt.GetHealthPercentage();
+                if (customHealthColors.Value)
                 {
-                    WearNTear wnt = hoveringPiece.GetComponent<WearNTear>();
-                    ZNetView znv = hoveringPiece.GetComponent<ZNetView>();
-                    if (wnt && znv?.IsValid() == true)
+                    __instance.m_pieceHealthBar.SetValue(healthPercent);
+                    if (healthPercent < 0.5f)
+                        __instance.m_pieceHealthBar.SetColor(Color.Lerp(lowColor.Value, midColor.Value, healthPercent * 2f));
+                    else
+                        __instance.m_pieceHealthBar.SetColor(Color.Lerp(midColor.Value, highColor.Value, (healthPercent - 0.5f) * 2f));
+                }
+
+                if (showHealthText.Value)
+                {
+                    Transform t = __instance.m_pieceHealthRoot.Find("_HealthText");
+                    if (t == null && __instance.m_healthText)
                     {
-                        __instance.m_pieceHealthBar.transform.parent.Find("bkg").gameObject.SetActive(showHealthBar.Value);
-                        __instance.m_pieceHealthBar.transform.parent.Find("darken").gameObject.SetActive(showHealthBar.Value);
-                        __instance.m_pieceHealthBar.gameObject.SetActive(showHealthBar.Value);
-                        float healthPercent = wnt.GetHealthPercentage();
-                        if (customHealthColors.Value)
-                        {
-                            __instance.m_pieceHealthBar.SetValue(wnt.GetHealthPercentage());
-                            if (healthPercent < 0.5)
-                                __instance.m_pieceHealthBar.SetColor(Color.Lerp(lowColor.Value, midColor.Value, healthPercent * 2));
-                            else
-                                __instance.m_pieceHealthBar.SetColor(Color.Lerp(midColor.Value, highColor.Value, (healthPercent - 0.5f) * 2));
-                        }
-                        if (showHealthText.Value)
-                        {
-                            Transform t = __instance.m_pieceHealthRoot.Find("_HealthText");
-                            if (t == null)
-                            {
-                                t = Instantiate(__instance.m_healthText, __instance.m_pieceHealthRoot.transform).transform;
-                                t.GetComponent<RectTransform>().localEulerAngles = new Vector3(0, 0, -90);
-                            }
-                            t.name = "_HealthText";
+                        t = Instantiate(__instance.m_healthText, __instance.m_pieceHealthRoot).transform;
+                        t.GetComponent<RectTransform>().localEulerAngles = new Vector3(0, 0, -90);
+                    }
+                    if (t)
+                    {
+                        t.name = "_HealthText";
+                        ZDO zdo = znv.GetZDO();
+                        float currentHealth = zdo != null ? zdo.GetFloat(ZDOVars.s_health, wnt.m_health) : wnt.m_health;
+                        TMP_Text tmp = t.GetComponent<TMP_Text>();
+                        tmp.text = string.Format(healthText.Value, Mathf.RoundToInt(currentHealth), Mathf.RoundToInt(wnt.m_health), Mathf.RoundToInt(healthPercent * 100));
+                        tmp.fontSize = healthTextSize.Value;
+                        tmp.maxVisibleCharacters = tmp.text.Length;
+                        t.GetComponent<RectTransform>().anchoredPosition = new Vector2(healthTextPosition.Value.y, healthTextPosition.Value.x);
+                    }
+                }
 
-                            t.GetComponent<TMP_Text>().text = string.Format(healthText.Value, Mathf.RoundToInt(znv.GetZDO().GetFloat("health", wnt.m_health)), Mathf.RoundToInt(wnt.m_health), Mathf.RoundToInt(healthPercent * 100));
-                            t.GetComponent<TMP_Text>().fontSize = healthTextSize.Value;
-                            t.GetComponent<TMP_Text>().maxVisibleCharacters = t.GetComponent<TMP_Text>().text.Length;
-                            t.GetComponent<RectTransform>().anchoredPosition = new Vector2(healthTextPosition.Value.y, healthTextPosition.Value.x);
-                        }
-                        float support = Traverse.Create(wnt).Method("GetSupport").GetValue<float>();
-                        float maxSupport = Traverse.Create(wnt).Method("GetMaxSupport").GetValue<float>();
-                        if (showIntegrityText.Value && maxSupport >= support)
+                if (showIntegrityText.Value)
+                {
+                    float support = Traverse.Create(wnt).Method("GetSupport").GetValue<float>();
+                    float maxSupport = Traverse.Create(wnt).Method("GetMaxSupport").GetValue<float>();
+                    if (maxSupport >= support)
+                    {
+                        Transform t = __instance.m_pieceHealthRoot.Find("_IntegrityText");
+                        if (t == null && __instance.m_healthText)
                         {
-                            Transform t = __instance.m_pieceHealthRoot.Find("_IntegrityText");
-                            if (t == null)
-                            {
-                                t = Instantiate(__instance.m_healthText, __instance.m_pieceHealthRoot.transform).transform;
-                                t.GetComponent<RectTransform>().localEulerAngles = new Vector3(0, 0, -90);
-                            }
+                            t = Instantiate(__instance.m_healthText, __instance.m_pieceHealthRoot).transform;
+                            t.GetComponent<RectTransform>().localEulerAngles = new Vector3(0, 0, -90);
+                        }
+                        if (t)
+                        {
                             t.name = "_IntegrityText";
-
-                            t.GetComponent<TMP_Text>().text = string.Format(integrityText.Value, Mathf.RoundToInt(support), Mathf.RoundToInt(maxSupport), Mathf.RoundToInt(support / maxSupport * 100));
-                            t.GetComponent<TMP_Text>().fontSize = integrityTextSize.Value;
-                            t.GetComponent<TMP_Text>().maxVisibleCharacters = t.GetComponent<TMP_Text>().text.Length;
+                            TMP_Text tmp = t.GetComponent<TMP_Text>();
+                            tmp.text = string.Format(integrityText.Value, Mathf.RoundToInt(support), Mathf.RoundToInt(maxSupport), Mathf.RoundToInt(support / maxSupport * 100));
+                            tmp.fontSize = integrityTextSize.Value;
+                            tmp.maxVisibleCharacters = tmp.text.Length;
                             t.GetComponent<RectTransform>().anchoredPosition = new Vector2(integrityTextPosition.Value.y, integrityTextPosition.Value.x);
                         }
                     }

@@ -1,6 +1,6 @@
 # BuildingHealthDisplay
 
-Patched for Valheim v0.217.46+
+Updated for Valheim 1.0
 
 A fork of [aedenthorn/BuildingHealthDisplay](https://github.com/aedenthorn/ValheimMods/tree/master/BuildingHealthDisplay) 
 
@@ -20,4 +20,15 @@ The health and integrity texts are in the format **{0}/{1} ({2})** just as an ex
 
 ## Configuration
 
-A config file **BepInEx/config/cjayride.BuildingHealthDisplay.cfg** is created after running the game once with this mod. 
+A config file **BepInEx/config/cjayride.BuildingHealthDisplay.cfg** is created after running the game once with this mod.
+
+# Contact
+- 𝕏: x.com/cjayride
+
+- Discord: discord.gg/cjayride (find me at the top of the user list) "cjayride"
+
+- Twitch: twitch.tv/cjayride
+
+# AI Generated
+
+This code was not AI Generated, however, AI was used to verify that it works with the new version of the game.
